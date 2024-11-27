@@ -17,11 +17,12 @@ img {
   font-weight: bold;
 }
 
-.italic-blue {
+/* not required now */
+/* .italic-blue {
   font-style: italic;
   color: blue;
 }
 
 img:hover {
   transform: scale(1.5);
-}
+} */

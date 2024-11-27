@@ -1,0 +1,15 @@
+{
+  "name": "iit_bombay",
+  "version": "1.0.0",
+  "description": "A simple HTML, CSS &amp; JavaScript project to render different animals using OOPs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}
