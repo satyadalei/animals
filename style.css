@@ -1,0 +1,27 @@
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #ccc;
+  padding: 8px;
+}
+
+img {
+  border: 2px solid #000;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.italic-blue {
+  font-style: italic;
+  color: blue;
+}
+
+img:hover {
+  transform: scale(1.5);
+}
