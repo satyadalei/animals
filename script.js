@@ -63,7 +63,7 @@ class AnimalTable {
         // first main goal is to render these data in the table
         let mainHeading = `<h3>${this.tableName}</h3>`;
         let table = `<table><thead><tr>`;
-        console.log(this.animalsData);
+        // console.log(this.animalsData)
         // generate the headings of table
         Object.keys(this.animalsData[0]).forEach((heading, _) => {
             table = table + `<th>${heading}</th>`;
@@ -77,9 +77,20 @@ class AnimalTable {
             // Each columns of Row
             Object.keys(animal).forEach((animalPropertyName, _) => {
                 const key = animalPropertyName;
-                columnsInASingleRow = columnsInASingleRow + `<td>
-                  ${animal[key]}
-               </td>`;
+                // applying styles
+                if (this.tableName === "Dogs" && key === "name") {
+                    columnsInASingleRow = columnsInASingleRow + `<td class="bold" >
+                      ${animal[key]}
+                   </td>`;
+                }
+                else if (this.tableName === "Big Fish" && key === "name") {
+                    columnsInASingleRow = columnsInASingleRow + `<td class="italic blue bold" >
+                    ${animal[key]}
+                 </td>`;
+                }
+                else {
+                    columnsInASingleRow = columnsInASingleRow + `<td> ${animal[key]}</td>`;
+                }
             });
             table = table + `<tr>${columnsInASingleRow}</tr>`;
         });
@@ -113,10 +124,10 @@ if (bigCatsContainerDivElement) {
     const bigCatsTable = new AnimalTable(bigCatsContainerDivElement, bigCatsAnimalJSONWithImage, "Big Cats");
 }
 if (dogsContainerDivElement) {
-    console.log("---------- Rendering ------------");
-    const dogsTable = new AnimalTable(dogsContainerDivElement, dogsAnimalJSONWithImage, "Big Cats");
+    console.log("---------- Rendering Dogs ------------");
+    const dogsTable = new AnimalTable(dogsContainerDivElement, dogsAnimalJSONWithImage, "Dogs");
 }
 if (bigFishContainerDivElement) {
-    console.log("----------------------");
-    const bigFishTable = new AnimalTable(bigFishContainerDivElement, bigFishAnimalJSONWithImage, "Big Cats");
+    console.log("---------- Rendering Big Fish ------------");
+    const bigFishTable = new AnimalTable(bigFishContainerDivElement, bigFishAnimalJSONWithImage, "Big Fish");
 }
