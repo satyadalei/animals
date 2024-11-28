@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "es6",
-    "outDir": "./js",
-    "rootDir": "./ts",
-    "strict": true,
-    "esModuleInterop": true
+    "target": "es6",               // Target ECMAScript version
+    "module": "none",              // Set module to 'none' for browser compatibility
+    "outFile": "./script.js",      // Output all compiled JS into a single file in the root folder
+    "rootDir": "./ts",             // Set the source directory for TypeScript files
+    "strict": true,                // Enable all strict type checking options
+    "esModuleInterop": true        // Allow interoperability with CommonJS modules
   },
-  "include": ["ts/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["ts/**/*.ts"],       // Include all .ts files under the ts directory
+  "exclude": ["node_modules"]      // Exclude node_modules folder
 }
