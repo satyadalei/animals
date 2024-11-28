@@ -48,10 +48,10 @@ class AnimalTable {
         this.animalsData = animalData;
         this.tableName = tableName;
         this.allSortableFields = allSortableFields;
+        this.dynamicIdForTableSortingSelectionElement = `select-${this.tableName.trim().split(" ").join("").toLowerCase()}`;
         this.render(); // Rendering of the element as soon as the Object instantiated
     }
     /**
-     *
      * Rendering of the Actual HTML content through DOM
      */
     render() {
@@ -64,14 +64,15 @@ class AnimalTable {
         // first main goal is to render these data in the table
         let mainHeading = `<h3>${this.tableName}</h3>`;
         // Dropdown for sorting
-        let selectDropdown = `<select id="sortableFieldSelect">`; // id will be used for event handling
+        let selectDropdown = `<select id="${this.dynamicIdForTableSortingSelectionElement}">`; // id will be used for event handling
         this.allSortableFields.forEach((sortFiled, idx) => {
             selectDropdown = selectDropdown + `<option value="${sortFiled}" ${idx === 0 ? 'selected' : ''} >${sortFiled}</option>`;
         });
-        selectDropdown = `</select>`;
+        selectDropdown = selectDropdown + `</select>`;
         let table = `<table><thead><tr>`;
-        // console.log(this.animalsData)
-        // generate the headings of table
+        /**
+         * Heading of the Table
+         */
         Object.keys(this.animalsData[0]).forEach((heading, _) => {
             table = table + `<th>${heading}</th>`;
         });
@@ -102,10 +103,73 @@ class AnimalTable {
             table = table + `<tr>${columnsInASingleRow}</tr>`;
         });
         // Ending of Table
-        table = table + `</table>`;
+        table = table + selectDropdown + `</table>`;
         // Render rows
         const ElementsGroup = mainHeading + table;
         this.containerElement.innerHTML = ElementsGroup;
+        /**
+         * Event Listener should at the end or after injecting the elements into DOM, other wise
+         * event listener will not work.
+         */
+        /**
+        * Event listener to sort animals when selection option changes
+        */
+        const selectElement = document.getElementById(this.dynamicIdForTableSortingSelectionElement);
+        console.log("00", selectElement, this.dynamicIdForTableSortingSelectionElement);
+        if (selectElement) {
+            selectElement.addEventListener("change", (event) => {
+                const selectedElement = event.target;
+                const selectedValue = selectedElement.value;
+                console.log("------------------");
+                console.log(selectedValue);
+                console.log("--------------------");
+                console.log(this.animalsData);
+                // based on the value sort the rows
+                if (selectedValue === "name" || selectedValue === "species" || selectedValue === "location") {
+                    this.animalsData.sort((a, b) => {
+                        const key = selectedValue;
+                        if (a[key] < b[key]) {
+                            return -1;
+                        }
+                        else if (a[key] > b[key]) {
+                            return 1;
+                        }
+                        return 0;
+                    });
+                }
+                /**
+                 * Special types of sorting incase of size which contains both numbers & string
+                 */
+                if (selectedValue === "size") {
+                    // handle differently for size
+                    this.animalsData.sort((a, b) => {
+                        const key = selectedValue;
+                        /**
+                         * For ex:- "5 ft" we have to split it into "5" & "ft" & then compare
+                         */
+                        const oneValue = Number(a[key].split(" ")[0].trim());
+                        const anotherValue = Number(b[key].split(" ")[0].trim());
+                        console.log("---- One Value -----", oneValue); // 5
+                        console.log("----- Another Value -------", anotherValue); //10
+                        if (oneValue < anotherValue) {
+                            return -1;
+                        }
+                        else if (oneValue > anotherValue) {
+                            return 1;
+                        }
+                        return 0;
+                    });
+                }
+                // console.log("----- After Sorting ----------");
+                // console.log(this.animalsData)
+                /**
+                 * Now Sorting is done we have to inject sorted elements to DOM
+                 */
+            });
+        }
+        /**
+        * End of Event listener to sort animals when selection option changes
+        */
     }
 }
 /**
@@ -128,7 +192,8 @@ const dogsContainerDivElement = document.getElementById("dogsTable");
 const bigFishContainerDivElement = document.getElementById("bigFishTable");
 if (bigCatsContainerDivElement) {
     console.log("---------- Rendering Big Cats ------------");
-    const bigCatsTable = new AnimalTable(bigCatsContainerDivElement, bigCatsAnimalJSONWithImage, "Big Cats", ["name"]);
+    const sortableFieldsForBigCats = ["name", "species", "size", "location"];
+    const bigCatsTable = new AnimalTable(bigCatsContainerDivElement, bigCatsAnimalJSONWithImage, "Big Cats", sortableFieldsForBigCats);
 }
 if (dogsContainerDivElement) {
     console.log("---------- Rendering Dogs ------------");

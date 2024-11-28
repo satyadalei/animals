@@ -44,7 +44,7 @@ class Animal {
         name: string,
         size: string,
         location: string,
-        image:string = "default-animal-image.jpg"
+        image: string = "default-animal-image.jpg"
     ) {
         this.species = species;
         this.name = name;
@@ -62,18 +62,20 @@ class AnimalTable {
     animalsData: Animal[];
     tableName: string;
     allSortableFields: string[]; // To sort a table
-    constructor(containerElement: HTMLElement, animalData: Animal[], tableName:string, allSortableFields: string[] = []) {
+    dynamicIdForTableSortingSelectionElement: string; // this will help detecting the event listener fro individual select element
+
+    constructor(containerElement: HTMLElement, animalData: Animal[], tableName: string, allSortableFields: string[] = []) {
         this.containerElement = containerElement;
         this.animalsData = animalData;
         this.tableName = tableName;
         this.allSortableFields = allSortableFields
+        this.dynamicIdForTableSortingSelectionElement = `select-${this.tableName.trim().split(" ").join("").toLowerCase()}`
         this.render();  // Rendering of the element as soon as the Object instantiated
     }
     /**
-     * 
      * Rendering of the Actual HTML content through DOM
      */
-    render(){
+    render() {
         // Element check
         // Validate the container element
         if (!this.containerElement) {
@@ -85,17 +87,17 @@ class AnimalTable {
         let mainHeading = `<h3>${this.tableName}</h3>`
 
         // Dropdown for sorting
-        let selectDropdown = `<select id="sortableFieldSelect">`;  // id will be used for event handling
-        this.allSortableFields.forEach((sortFiled,idx)=>{
+        let selectDropdown = `<select id="${this.dynamicIdForTableSortingSelectionElement}">`;  // id will be used for event handling
+        this.allSortableFields.forEach((sortFiled, idx) => {
             selectDropdown = selectDropdown + `<option value="${sortFiled}" ${idx === 0 ? 'selected' : ''} >${sortFiled}</option>`
         })
-        selectDropdown = `</select>`
-
+        selectDropdown = selectDropdown + `</select>`
 
         let table = `<table><thead><tr>`;
-        // console.log(this.animalsData)
-        // generate the headings of table
-        Object.keys(this.animalsData[0]).forEach((heading,_)=>{
+        /**
+         * Heading of the Table
+         */
+        Object.keys(this.animalsData[0]).forEach((heading, _) => {
             table = table + `<th>${heading}</th>`
         });
         // end of Heading
@@ -103,55 +105,127 @@ class AnimalTable {
 
         // Rendering of rows
         // Each row
-        this.animalsData.forEach((animal,_)=>{
+        this.animalsData.forEach((animal, _) => {
             let columnsInASingleRow = ``;
             // Each columns of Row
-            Object.keys(animal).forEach((animalPropertyName,_)=>{
+            Object.keys(animal).forEach((animalPropertyName, _) => {
                 const key = animalPropertyName as keyof Animal;
 
                 // applying styles
-                if(this.tableName === "Dogs" && key === "name"){
+                if (this.tableName === "Dogs" && key === "name") {
                     columnsInASingleRow = columnsInASingleRow + `<td class="bold" >
                       ${animal[key]}
                    </td>`
-                }else if (this.tableName === "Big Fish" && key === "name") {
+                } else if (this.tableName === "Big Fish" && key === "name") {
                     columnsInASingleRow = columnsInASingleRow + `<td class="italic blue bold" >
                     ${animal[key]}
                  </td>`
-                }else{
+                } else {
                     columnsInASingleRow = columnsInASingleRow + `<td> ${animal[key]}</td>`
                 }
             })
 
-            table = table +`<tr>${columnsInASingleRow}</tr>`
+            table = table + `<tr>${columnsInASingleRow}</tr>`
         })
 
         // Ending of Table
-        table = table + `</table>`;
+        table = table + selectDropdown + `</table>`;
 
         // Render rows
 
 
         const ElementsGroup = mainHeading + table;
- 
-        this.containerElement.innerHTML = ElementsGroup
+
+        this.containerElement.innerHTML = ElementsGroup;
+
+        /**
+         * Event Listener should at the end or after injecting the elements into DOM, other wise
+         * event listener will not work.
+         */
+
+        /**
+        * Event listener to sort animals when selection option changes
+        */
+        const selectElement = document.getElementById(this.dynamicIdForTableSortingSelectionElement);
+        console.log("00", selectElement, this.dynamicIdForTableSortingSelectionElement)
+        if (selectElement) {
+            selectElement.addEventListener("change", (event: Event) => {
+                const selectedElement = event.target as HTMLSelectElement;
+                const selectedValue = selectedElement.value;
+
+                console.log("------------------");
+                console.log(selectedValue)
+                console.log("--------------------");
+
+                console.log(this.animalsData);
+
+                // based on the value sort the rows
+                if (selectedValue === "name" || selectedValue === "species" || selectedValue === "location") {
+                    this.animalsData.sort((a, b) => {
+                        const key = selectedValue as keyof Animal;
+                        if (a[key] < b[key]) {
+                            return -1;
+                        } else if (a[key] > b[key]) {
+                            return 1;
+                        }
+                        return 0;
+                    });
+                }
+
+                /**
+                 * Special types of sorting incase of size which contains both numbers & string
+                 */
+                if (selectedValue === "size") {
+                    // handle differently for size
+                    this.animalsData.sort((a, b) => {
+                        const key = selectedValue as keyof Animal;
+
+                        /**
+                         * For ex:- "5 ft" we have to split it into "5" & "ft" & then compare
+                         */
+                        const oneValue = Number(a[key].split(" ")[0].trim());
+                        const anotherValue = Number(b[key].split(" ")[0].trim());
+
+                        console.log("---- One Value -----", oneValue); // 5
+                        console.log("----- Another Value -------", anotherValue); //10
+
+                        if (oneValue < anotherValue) {
+                            return -1;
+                        } else if (oneValue > anotherValue) {
+                            return 1;
+                        }
+                        return 0;
+                    });
+
+                }
+                // console.log("----- After Sorting ----------");
+                // console.log(this.animalsData)
+
+                /**
+                 * Now Sorting is done we have to inject sorted elements to DOM
+                 */
+            })
+        }
+        /**
+        * End of Event listener to sort animals when selection option changes
+        */
     }
 }
 
 /**
  * As Our JSON does not includes any images we have programmatically set the image to it
  */
-const bigCatsAnimalJSONWithImage = bigCatsJson.map(({species, name, size, location},_)=>{
+const bigCatsAnimalJSONWithImage = bigCatsJson.map(({ species, name, size, location }, _) => {
     const newBigCatAnimal = new Animal(species, name, size, location) // image is default taken
     return newBigCatAnimal;
 });
 
-const dogsAnimalJSONWithImage = dogsJson.map(({species, name, size, location},_)=>{
+const dogsAnimalJSONWithImage = dogsJson.map(({ species, name, size, location }, _) => {
     const newDogAnimal = new Animal(species, name, size, location) // image is default taken
     return newDogAnimal;
 })
 
-const bigFishAnimalJSONWithImage = bigFishJson.map(({species, name, size, location},_)=>{
+const bigFishAnimalJSONWithImage = bigFishJson.map(({ species, name, size, location }, _) => {
     const newBigFishAnimal = new Animal(species, name, size, location) // image is default taken
     return newBigFishAnimal;
 })
@@ -163,15 +237,16 @@ const bigFishContainerDivElement = document.getElementById("bigFishTable");
 
 if (bigCatsContainerDivElement) {
     console.log("---------- Rendering Big Cats ------------")
-    const bigCatsTable = new AnimalTable(bigCatsContainerDivElement,bigCatsAnimalJSONWithImage, "Big Cats", ["name"]);
+    const sortableFieldsForBigCats = ["name", "species", "size", "location"];
+    const bigCatsTable = new AnimalTable(bigCatsContainerDivElement, bigCatsAnimalJSONWithImage, "Big Cats", sortableFieldsForBigCats);
 }
 
 if (dogsContainerDivElement) {
     console.log("---------- Rendering Dogs ------------")
-    const dogsTable = new AnimalTable(dogsContainerDivElement,dogsAnimalJSONWithImage, "Dogs");
+    const dogsTable = new AnimalTable(dogsContainerDivElement, dogsAnimalJSONWithImage, "Dogs");
 }
 
 if (bigFishContainerDivElement) {
     console.log("---------- Rendering Big Fish ------------")
-    const bigFishTable = new AnimalTable(bigFishContainerDivElement,bigFishAnimalJSONWithImage, "Big Fish");
+    const bigFishTable = new AnimalTable(bigFishContainerDivElement, bigFishAnimalJSONWithImage, "Big Fish");
 }
