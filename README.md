@@ -9,8 +9,6 @@ A simple HTML, CSS &amp; , JavaScript (Actually TypeScript, but further compiled
 
 ```plaintext
 project_folder/
-├── js/
-│   └── index.js         # Compiled JavaScript file
 ├── ts/
 │   └── index.ts         # Source TypeScript file
 ├── node_modules/        # Dependencies installed via npm

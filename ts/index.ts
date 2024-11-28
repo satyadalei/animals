@@ -61,10 +61,12 @@ class AnimalTable {
     containerElement: HTMLElement;
     animalsData: Animal[];
     tableName: string;
-    constructor(containerElement: HTMLElement, animalData: Animal[], tableName:string) {
+    allSortableFields: string[]; // To sort a table
+    constructor(containerElement: HTMLElement, animalData: Animal[], tableName:string, allSortableFields: string[] = []) {
         this.containerElement = containerElement;
         this.animalsData = animalData;
         this.tableName = tableName;
+        this.allSortableFields = allSortableFields
         this.render();  // Rendering of the element as soon as the Object instantiated
     }
     /**
@@ -81,6 +83,15 @@ class AnimalTable {
 
         // first main goal is to render these data in the table
         let mainHeading = `<h3>${this.tableName}</h3>`
+
+        // Dropdown for sorting
+        let selectDropdown = `<select id="sortableFieldSelect">`;  // id will be used for event handling
+        this.allSortableFields.forEach((sortFiled,idx)=>{
+            selectDropdown = selectDropdown + `<option value="${sortFiled}" ${idx === 0 ? 'selected' : ''} >${sortFiled}</option>`
+        })
+        selectDropdown = `</select>`
+
+
         let table = `<table><thead><tr>`;
         // console.log(this.animalsData)
         // generate the headings of table
@@ -152,7 +163,7 @@ const bigFishContainerDivElement = document.getElementById("bigFishTable");
 
 if (bigCatsContainerDivElement) {
     console.log("---------- Rendering Big Cats ------------")
-    const bigCatsTable = new AnimalTable(bigCatsContainerDivElement,bigCatsAnimalJSONWithImage, "Big Cats");
+    const bigCatsTable = new AnimalTable(bigCatsContainerDivElement,bigCatsAnimalJSONWithImage, "Big Cats", ["name"]);
 }
 
 if (dogsContainerDivElement) {
